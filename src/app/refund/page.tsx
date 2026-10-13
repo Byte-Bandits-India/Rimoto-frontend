@@ -12,6 +12,17 @@ const { TextArea } = Input;
 const { Option } = Select;
 
 const sizes = ["XS", "S", "M", "L", "XL", "XXL", "Free Size"];
+const products = [
+  "ARCOT",
+  "HORSLEY",
+  "BASPA",
+  "DARCHA",
+  "DARCHA PANT",
+  "RAIN JACKET",
+  "GUTTAL",
+  "GARA",
+  "GUTTI",
+];
 
 export default function RefundPage() {
   const [claimType, setClaimType] = useState('');
@@ -205,9 +216,11 @@ export default function RefundPage() {
                     <Form.Item
                       label={<span className="font-bold uppercase text-[11px] tracking-widest">{claimType === 'exchange' ? 'Returning Product Name' : 'Product Name'}</span>}
                       name={claimType === 'exchange' ? 'returningProductName' : 'productName'}
-                      rules={[{ required: true, message: 'Please enter product name' }]}
+                      rules={[{ required: true, message: 'Please select product name' }]}
                     >
-                      <Input size="large" placeholder="Product name" className="border-black focus:border-accent hover:border-accent rounded-none" />
+                      <Select size="large" placeholder="Choose" showSearch className="w-full">
+                        {products.map(p => <Option key={p} value={p}>{p}</Option>)}
+                      </Select>
                     </Form.Item>
 
                     <Form.Item
@@ -234,11 +247,13 @@ export default function RefundPage() {
                           <h3 className="font-display uppercase text-lg">Exchange For</h3>
                         </div>
                         <Form.Item
-                          label={<span className="font-bold uppercase text-[11px] tracking-widest">Exchange Product Name</span>}
+                          label={<span className="font-bold uppercase text-[11px] tracking-widest">New Product Name</span>}
                           name="exchangeProductName"
-                          rules={[{ required: true, message: 'Please enter exchange product name' }]}
+                          rules={[{ required: true, message: 'Please select new product name' }]}
                         >
-                          <Input size="large" placeholder="Product name" className="border-black focus:border-accent hover:border-accent rounded-none" />
+                          <Select size="large" placeholder="Choose" showSearch className="w-full">
+                            {products.map(p => <Option key={p} value={p}>{p}</Option>)}
+                          </Select>
                         </Form.Item>
 
                         <Form.Item
