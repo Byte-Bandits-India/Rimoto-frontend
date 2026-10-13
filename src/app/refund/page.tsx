@@ -11,8 +11,7 @@ const api = axios.create({ baseURL: import.meta.env.VITE_API_URL || 'http://loca
 const { TextArea } = Input;
 const { Option } = Select;
 
-const colors = ["Black", "White", "Red", "Blue", "Green", "Grey", "Brown"];
-const sizes = ["XS", "S", "M", "L", "XL", "XXL"];
+const sizes = ["XS", "S", "M", "L", "XL", "XXL", "Free Size"];
 
 export default function RefundPage() {
   const [claimType, setClaimType] = useState('');
@@ -60,7 +59,8 @@ export default function RefundPage() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (error: any) {
       console.error('Error submitting claim:', error);
-      message.error(error.response?.data?.error || 'Failed to submit claim. Please try again.');
+      const serverMsg = error.response?.data?.detail || error.response?.data?.error || error.response?.data?.message;
+      message.error(serverMsg || 'Failed to submit claim. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -213,11 +213,9 @@ export default function RefundPage() {
                     <Form.Item
                       label={<span className="font-bold uppercase text-[11px] tracking-widest">{claimType === 'exchange' ? 'Returning Product Color' : 'Product Color'}</span>}
                       name={claimType === 'exchange' ? 'returningProductColor' : 'productColor'}
-                      rules={[{ required: true, message: 'Please select color' }]}
+                      rules={[{ required: true, message: 'Please enter product color' }]}
                     >
-                      <Select size="large" placeholder="Select Color" className="w-full">
-                        {colors.map(c => <Option key={c} value={c}>{c}</Option>)}
-                      </Select>
+                      <Input size="large" placeholder="Product color (e.g. Black, Grey)" className="border-black focus:border-accent hover:border-accent rounded-none" />
                     </Form.Item>
 
                     <Form.Item
@@ -246,11 +244,9 @@ export default function RefundPage() {
                         <Form.Item
                           label={<span className="font-bold uppercase text-[11px] tracking-widest">Exchange Product Color</span>}
                           name="exchangeProductColor"
-                          rules={[{ required: true, message: 'Please select color' }]}
+                          rules={[{ required: true, message: 'Please enter exchange product color' }]}
                         >
-                          <Select size="large" placeholder="Select Color" className="w-full">
-                            {colors.map(c => <Option key={c} value={c}>{c}</Option>)}
-                          </Select>
+                          <Input size="large" placeholder="Desired color (e.g. Black, Red)" className="border-black focus:border-accent hover:border-accent rounded-none" />
                         </Form.Item>
 
                         <Form.Item
