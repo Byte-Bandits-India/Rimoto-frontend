@@ -17,6 +17,16 @@ import {
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 
+const getMediaUrl = (path?: string) => {
+  if (!path) return '';
+  if (path.startsWith('http://') || path.startsWith('https://')) return path;
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
+  if (backendUrl && backendUrl.trim() !== '') {
+    return `${backendUrl.replace(/\/+$/, '')}${path.startsWith('/') ? path : '/' + path}`;
+  }
+  return path.startsWith('/') ? path : `/${path}`;
+};
+
 export function ClaimsTab({ claims }: { claims: any[] }) {
   const [selectedClaim, setSelectedClaim] = useState<any | null>(null);
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
@@ -191,7 +201,7 @@ export function ClaimsTab({ claims }: { claims: any[] }) {
                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2.5">Purchase Invoice</span>
                 {selectedClaim.invoiceUrl ? (
                   <a
-                    href={`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000'}${selectedClaim.invoiceUrl}`}
+                    href={getMediaUrl(selectedClaim.invoiceUrl)}
                     target="_blank"
                     rel="noreferrer"
                     className="inline-flex items-center justify-center border border-gray-200 rounded-xl px-4 py-3 hover:bg-gray-50 transition-colors gap-2 bg-white shadow-sm font-bold text-xs text-gray-700 uppercase tracking-wide"
@@ -208,38 +218,55 @@ export function ClaimsTab({ claims }: { claims: any[] }) {
               </div>
               <div className="flex-1">
                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2.5">Media Evidence</span>
-                {selectedClaim.productMediaUrls?.length > 0 ? (
-                  <div className="flex flex-wrap gap-3">
-                    {selectedClaim.productMediaUrls.map((url: string, idx: number) => {
-                      const isVideo = url.toLowerCase().match(/\.(mp4|mov|avi)$/);
-                      const fullUrl = `${import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000'}${url}`;
-                      return isVideo ? (
-                        <button
-                          key={idx}
-                          onClick={() => setSelectedVideo(fullUrl)}
-                          className="flex items-center justify-center border border-gray-200 rounded-xl px-4 py-3 gap-2 hover:bg-gray-50 bg-white font-bold text-xs text-gray-700 shadow-sm uppercase tracking-wide"
-                        >
-                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-500">
-                            <polygon points="5 3 19 12 5 21 5 3" />
-                          </svg>
-                          Play Video Evidence
-                        </button>
-                      ) : (
-                        <a
-                          key={idx}
-                          href={fullUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="block w-16 h-16 rounded-xl overflow-hidden border border-gray-200 hover:opacity-85 hover:shadow-sm transition-all"
-                        >
-                          <img src={fullUrl} alt="Evidence Attachment" className="w-full h-full object-cover" />
-                        </a>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div className="border border-gray-200 rounded-xl px-4 py-3 text-center text-xs text-gray-400 bg-gray-50">No media attached</div>
-                )}
+                {(() => {
+                  const mediaList: string[] = Array.isArray(selectedClaim.productMediaUrls)
+                    ? selectedClaim.productMediaUrls
+                    : typeof selectedClaim.productMediaUrls === 'string'
+                    ? (() => {
+                        try {
+                          const parsed = JSON.parse(selectedClaim.productMediaUrls);
+                          return Array.isArray(parsed) ? parsed : [];
+                        } catch {
+                          return [];
+                        }
+                      })()
+                    : [];
+
+                  if (mediaList.length === 0) {
+                    return <div className="border border-gray-200 rounded-xl px-4 py-3 text-center text-xs text-gray-400 bg-gray-50">No media attached</div>;
+                  }
+
+                  return (
+                    <div className="flex flex-wrap gap-3">
+                      {mediaList.map((url: string, idx: number) => {
+                        const isVideo = url.toLowerCase().match(/\.(mp4|mov|avi|webm|mkv|ogg)$/);
+                        const fullUrl = getMediaUrl(url);
+                        return isVideo ? (
+                          <button
+                            key={idx}
+                            onClick={() => setSelectedVideo(fullUrl)}
+                            className="flex items-center justify-center border border-gray-200 rounded-xl px-4 py-3 gap-2 hover:bg-gray-50 bg-white font-bold text-xs text-gray-700 shadow-sm uppercase tracking-wide"
+                          >
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-500">
+                              <polygon points="5 3 19 12 5 21 5 3" />
+                            </svg>
+                            Play Video Evidence
+                          </button>
+                        ) : (
+                          <a
+                            key={idx}
+                            href={fullUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="block w-16 h-16 rounded-xl overflow-hidden border border-gray-200 hover:opacity-85 hover:shadow-sm transition-all bg-gray-50"
+                          >
+                            <img src={fullUrl} alt="Evidence Attachment" className="w-full h-full object-cover" />
+                          </a>
+                        );
+                      })}
+                    </div>
+                  );
+                })()}
               </div>
             </div>
           </div>
