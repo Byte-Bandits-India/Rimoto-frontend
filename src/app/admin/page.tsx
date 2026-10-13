@@ -759,6 +759,21 @@ export default function AdminCommunity() {
     }
   };
 
+  const handleDeleteClaim = async (id: string): Promise<boolean> => {
+    if (!window.confirm("Are you sure you want to delete this claim? This will permanently remove the claim and its attached files.")) {
+      return false;
+    }
+    try {
+      await api.delete(`/admin/claims/${id}`);
+      setClaims((prev) => prev.filter((c) => c.id !== id));
+      return true;
+    } catch (err) {
+      console.error("Failed to delete claim", err);
+      alert("Failed to delete claim. Please try again.");
+      return false;
+    }
+  };
+
   useEffect(() => {
     const check = () => {
       const mobile = window.innerWidth < 768;
@@ -807,7 +822,7 @@ export default function AdminCommunity() {
           {activeTab === "featured" && <FeaturedTab approvedRides={approvedRides} onSave={handleFeaturedSave} />}
           {activeTab === "routes" && <RoutesTab popularRoutes={popularRoutes} onAction={handlePopularRouteAction} />}
           {activeTab === "users" && <UsersTab users={users} onAction={handleUserAction} />}
-          {activeTab === "claims" && <ClaimsTab claims={claims} />}
+          {activeTab === "claims" && <ClaimsTab claims={claims} onDeleteClaim={handleDeleteClaim} />}
         </main>
       </div>
 

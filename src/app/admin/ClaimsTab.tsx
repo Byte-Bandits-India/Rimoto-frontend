@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronLeft, Eye } from "lucide-react";
+import { ChevronLeft, Eye, Trash2, Loader2 } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -27,9 +27,28 @@ const getMediaUrl = (path?: string) => {
   return path.startsWith('/') ? path : `/${path}`;
 };
 
-export function ClaimsTab({ claims }: { claims: any[] }) {
+export interface ClaimsTabProps {
+  claims: any[];
+  onDeleteClaim?: (id: string) => Promise<boolean | void> | boolean | void;
+}
+
+export function ClaimsTab({ claims, onDeleteClaim }: ClaimsTabProps) {
   const [selectedClaim, setSelectedClaim] = useState<any | null>(null);
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const handleDelete = async (id: string) => {
+    if (!onDeleteClaim) return;
+    setDeletingId(id);
+    try {
+      const success = await onDeleteClaim(id);
+      if (success !== false && selectedClaim?.id === id) {
+        setSelectedClaim(null);
+      }
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   if (claims.length === 0) {
     return (
@@ -46,7 +65,24 @@ export function ClaimsTab({ claims }: { claims: any[] }) {
           <Button variant="outline" onClick={() => setSelectedClaim(null)} className="h-10 rounded-lg">
             <ChevronLeft className="h-4 w-4 mr-2" /> Back to Claims
           </Button>
-          <span className="text-xs font-bold text-gray-450 uppercase tracking-widest">Document View</span>
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-bold text-gray-400 uppercase tracking-widest hidden sm:inline-block">Document View</span>
+            {onDeleteClaim && (
+              <Button
+                variant="outline"
+                disabled={deletingId === selectedClaim.id}
+                onClick={() => handleDelete(selectedClaim.id)}
+                className="h-10 rounded-lg border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 hover:text-red-700 transition-colors"
+              >
+                {deletingId === selectedClaim.id ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Trash2 className="h-4 w-4 mr-2" />
+                )}
+                Delete Claim
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Minimalist Corporate Document Container */}
@@ -326,12 +362,32 @@ export function ClaimsTab({ claims }: { claims: any[] }) {
                     </span>
                   </TableCell>
                   <TableCell className="text-right pr-6 whitespace-nowrap">
-                    <button
-                      onClick={() => setSelectedClaim(claim)}
-                      className="inline-flex items-center justify-center rounded-md text-sm font-medium border border-gray-300 bg-white p-1.5 text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-200 transition-colors"
-                    >
-                      <Eye className="h-4 w-4" />
-                    </button>
+                    <div className="flex items-center justify-end gap-2">
+                      <button
+                        onClick={() => setSelectedClaim(claim)}
+                        className="inline-flex items-center justify-center rounded-md text-sm font-medium border border-gray-300 bg-white p-1.5 text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-200 transition-colors"
+                        title="View Details"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </button>
+                      {onDeleteClaim && (
+                        <button
+                          disabled={deletingId === claim.id}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(claim.id);
+                          }}
+                          className="inline-flex items-center justify-center rounded-md text-sm font-medium border border-red-200 bg-white p-1.5 text-red-600 hover:bg-red-50 hover:border-red-300 focus:outline-none focus:ring-2 focus:ring-red-200 transition-colors disabled:opacity-50"
+                          title="Delete Claim"
+                        >
+                          {deletingId === claim.id ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-4 w-4" />
+                          )}
+                        </button>
+                      )}
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
