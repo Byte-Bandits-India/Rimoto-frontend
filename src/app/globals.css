@@ -4,13 +4,34 @@
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
 
+@font-face {
+  font-family: 'Glancyr';
+  src: url('/Glancyr%20Variable-VF.ttf') format('truetype-variations'),
+       url('/Glancyr%20Variable-VF.ttf') format('truetype'),
+       url('/Glancyr Variable-VF.ttf') format('truetype');
+  font-weight: 100 1000;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Glancyr';
+  src: url('/Glancyr%20Variable-VF.ttf') format('truetype-variations'),
+       url('/Glancyr%20Variable-VF.ttf') format('truetype'),
+       url('/Glancyr Variable-VF.ttf') format('truetype');
+  font-weight: 100 1000;
+  font-style: italic;
+  font-display: swap;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 :root {
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
 
-  /* Font families (loaded via Google Fonts) */
+  /* Font families */
+  --font-glancyr: 'Glancyr', sans-serif;
   --font-bebas-neue: 'Bebas Neue', sans-serif;
   --font-montserrat: 'Montserrat', sans-serif;
 
@@ -60,9 +81,10 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: 'Geist Variable', sans-serif;
-  --font-display: var(--font-bebas-neue);
-  --font-body: var(--font-montserrat);
+  --font-sans: 'Glancyr', sans-serif;
+  --font-glancyr: 'Glancyr', sans-serif;
+  --font-display: 'Glancyr', sans-serif;
+  --font-body: 'Glancyr', sans-serif;
 
   --color-bg: var(--bg);
   --color-bg-card: var(--bg-card);
